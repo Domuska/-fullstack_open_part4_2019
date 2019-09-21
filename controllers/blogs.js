@@ -3,17 +3,14 @@ const router = require('express').Router();
 const Blog = require('../models/blog');
 const logger = require('../utils/logger');
 
-router.get('/', (request, response) => {
-  Blog
-    .find({})
-    .then((blogs) => {
-      const responseBlogs = blogs.map((blogObject) => blogObject.toJSON());
-      logger.info('returning blogs:', responseBlogs);
-      response.json(responseBlogs);
-    });
+router.get('/', async (request, response) => {
+  const blogs = await Blog.find({});
+  const responseBlogs = blogs.map((blogObject) => blogObject.toJSON());
+  logger.info('returning blogs:', responseBlogs);
+  response.json(responseBlogs);
 });
 
-router.post('/', (request, response) => {
+router.post('/', async (request, response) => {
   const {
     title, author, url,
   } = request.body;
@@ -31,10 +28,8 @@ router.post('/', (request, response) => {
     likes, title, author, url,
   });
 
-
-  blog
-    .save()
-    .then((result) => response.status(201).json(result.toJSON()));
+  const result = await blog.save();
+  return response.status(201).json(result.toJSON());
 });
 
 module.exports = router;
