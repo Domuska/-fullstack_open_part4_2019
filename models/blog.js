@@ -7,6 +7,15 @@ const blogSchema = mongoose.Schema({
   likes: Number,
 });
 
-// todo set toJSON on schema
+// transform the object to form suitable for frontend
+blogSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    const copy = { ...returnedObject };
+    copy.id = returnedObject._id.toString(); // eslint-disable-line
+    delete copy._id; // eslint-disable-line
+    delete copy.__v; // eslint-disable-line
+    return copy;
+  },
+});
 
 module.exports = mongoose.model('Blog', blogSchema);

@@ -1,4 +1,5 @@
 const lodash = require('lodash');
+const log = require('./logger'); // eslint-disable-line
 
 const totalLikes = (blogs) => {
   const reducer = (likes, blog) => {
@@ -44,7 +45,7 @@ const mostBlogs = (blogs) => {
     return accumulated;
   };
   const counted = blogs.reduce(reducer, []);
-  // console.log(counted);
+  // log.info(counted);
 
   const maxByCb = (object) => object.blogs;
 
@@ -65,7 +66,7 @@ const mostLikes = (blogs) => {
         likes: lodash.sumBy(authorBlogs, 'likes'),
       }))
       .value();
-    // console.log(likesPerAuthor);
+    // log.info(likesPerAuthor);
     const mostLiked = lodash.maxBy(likesPerAuthor, (object) => object.likes);
     return mostLiked;
   }

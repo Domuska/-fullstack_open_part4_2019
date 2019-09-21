@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 
+
+const log = require('./utils/logger');
 const morgan = require('./utils/morgan');
 const config = require('./utils/config');
 const middleware = require('./utils/middleware');
@@ -13,7 +15,7 @@ const app = express();
 mongoose
   .connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
-    console.log(`Connected to MongoDB at URI ${config.MONGODB_URI}`);
+    log.info(`Connected to MongoDB at URI ${config.MONGODB_URI}`);
   })
   .catch((err) => {
     console.error('Error connecting to MongoDB:', err.message);

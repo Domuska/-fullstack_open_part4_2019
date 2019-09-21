@@ -159,7 +159,7 @@ describe('most blogs tests', () => {
   });
 });
 
-describe.only('most likes tests', () => {
+describe('most likes tests', () => {
   test('returns the author with most likes', () => {
     const expectedObject = {
       author: 'Edsger W. Dijkstra',
