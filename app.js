@@ -8,7 +8,10 @@ const log = require('./utils/logger');
 const morgan = require('./utils/morgan');
 const config = require('./utils/config');
 const middleware = require('./utils/middleware');
+
 const blogsRouter = require('./controllers/blogs');
+const usersRouter = require('./controllers/users');
+const loginRouter = require('./controllers/login');
 
 const app = express();
 
@@ -26,9 +29,14 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(morgan);
 
+app.use(middleware.tokenExtractor);
+
 app.use('/api/blogs/', blogsRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/login', loginRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.mongoErrorHandler);
+app.use(middleware.webTokenErrorHandler);
 
 module.exports = app;

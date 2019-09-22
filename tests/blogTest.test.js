@@ -3,7 +3,7 @@ const supertest = require('supertest');
 
 const app = require('../app');
 const Blog = require('../models/blog');
-const initialBlogs = require('./testData').blogs;
+const initialBlogs = require('./blogTestHelper').blogs;
 
 const api = supertest(app);
 
@@ -39,7 +39,7 @@ describe('get blogs', () => {
 });
 
 describe('post blogs', () => {
-  test('list of bots has new element after adding', async () => {
+  test('list of blogs has new element after adding', async () => {
     const newBlog = {
       title: 'State of JavaScript 2019',
       author: 'Mr. JavaScript',
@@ -67,7 +67,8 @@ describe('post blogs', () => {
 
     await api
       .post(blogsRoute)
-      .send(newBlog);
+      .send(newBlog)
+      .expect(201);
 
     const response = await api.get(blogsRoute);
     const addedBlog = response.body.find((element) => element.title === newBlog.title);

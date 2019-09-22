@@ -10,4 +10,5 @@ if (process.env.NODE_ENV === 'test') {
 module.exports = {
   MONGODB_URI,
   PORT: process.env.PORT,
+  JWT_TOKEN_SECRET: process.env.JWT_TOKEN_SECRET,
 };

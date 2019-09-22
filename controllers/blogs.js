@@ -1,16 +1,26 @@
 const router = require('express').Router();
 
 const Blog = require('../models/blog');
+const User = require('../models/user');
 const logger = require('../utils/logger');
 
+const populatedUserFields = {
+  username: 1,
+  id: 1,
+  name: 1,
+};
+
 router.get('/', async (request, response) => {
-  const blogs = await Blog.find({});
+  const blogs = await Blog
+    .find({})
+    .populate('user', populatedUserFields);
   const responseBlogs = blogs.map((blogObject) => blogObject.toJSON());
   logger.info('returning blogs:', responseBlogs);
   response.json(responseBlogs);
 });
 
-router.post('/', async (request, response) => {
+
+router.post('/', async (request, response, next) => {
   const {
     title, author, url,
   } = request.body;
@@ -24,21 +34,45 @@ router.post('/', async (request, response) => {
     likes = 0;
   }
 
-  const blog = new Blog({
-    likes, title, author, url,
-  });
 
-  const result = await blog.save();
-  return response.status(201).json(result.toJSON());
+  try {
+    const user = await User.findById(request.decodedToken.id);
+
+    if (!user) {
+      return response.status(500).send({ error: 'user was not found' });
+    }
+
+    const blog = new Blog({
+      likes,
+      title,
+      author,
+      url,
+      user: user._id,
+    });
+
+    const savedBlog = await blog.save();
+    logger.info('user:', user);
+    user.blogs = user.blogs.concat(savedBlog._id);
+    await user.save();
+    return response.status(201).json(savedBlog.toJSON());
+  } catch (error) {
+    logger.error(error);
+    return next(error);
+  }
 });
 
 router.delete('/:blogId', async (request, response, next) => {
   try {
-    await Blog.findByIdAndRemove(request.params.blogId);
-    response.status(204).end();
+    const blog = await Blog.findById(request.params.blogId);
+
+    if (blog.user.toString() === request.decodedToken.id.toString()) {
+      await Blog.findByIdAndRemove(request.params.blogId);
+      return response.status(204).end();
+    }
+    return response.status(401).json({ error: 'user does not own the blog' });
   } catch (error) {
     logger.error(error);
-    next(error);
+    return next(error);
   }
 });
 
