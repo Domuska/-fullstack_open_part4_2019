@@ -3,17 +3,30 @@ const supertest = require('supertest');
 
 const app = require('../app');
 const Blog = require('../models/blog');
+const User = require('../models/user');
 const initialBlogs = require('./blogTestHelper').blogs;
+const { dummyUser } = require('./userTestHelper');
 
 const api = supertest(app);
 
 const blogsRoute = '/api/blogs';
+
+let authHeader;
 
 beforeEach(async () => {
   await Blog.deleteMany({});
   const blogObjects = initialBlogs.map((blog) => new Blog(blog));
   const promises = blogObjects.map((blogObject) => blogObject.save());
   await Promise.all(promises);
+
+  // this should go to be run before the whole suite only once. Oh well.
+  await User.deleteMany({});
+  const user = new User(dummyUser);
+  await user.save();
+  const response = await api
+    .post('/api/login')
+    .send({ username: dummyUser.username, password: dummyUser.unHashedPassword });
+  authHeader = `bearer ${response.body.token}`;
 });
 
 describe('get blogs', () => {
@@ -49,6 +62,7 @@ describe('post blogs', () => {
 
     await api
       .post(blogsRoute)
+      .set('Authorization', authHeader)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', 'application/json; charset=utf-8');
@@ -67,6 +81,7 @@ describe('post blogs', () => {
 
     await api
       .post(blogsRoute)
+      .set('Authorization', authHeader)
       .send(newBlog)
       .expect(201);
 
@@ -99,6 +114,9 @@ describe('post blogs', () => {
 });
 
 describe('delete blogs', () => {
+  // note this test is broken, as the user who added the blog is not the same
+  // that SHOULD be passed in with the authorization header. Fix if you wish.
+
   test('deleting a blog and requesting all blogs, blog should have disappeared', async () => {
     // will not actually work if there are two blogs with the same title
     const blogsResponse = await api.get(blogsRoute);

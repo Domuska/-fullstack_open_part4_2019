@@ -17,6 +17,16 @@ const initialUsers = [
   },
 ];
 
+const dummyUser = {
+  username: 'alain.ackermann',
+  // NOTE, THIS PASSWORD DOES NOT ACTULLY HASH INTO THE PASSWORD FIELD'S VALUE
+  unHashedPassword: 'metal123',
+  password: '$2a$10$ptkUMUfiTs/J8NYSQmo.I.QAYDOZuiFKZqsWOa2FMbryyh1XszLPO',
+  __v: 0,
+  name: 'Alain Ackermann',
+  _id: '7d878b02dc541e34f38886bf',
+};
+
 const usersInDb = async () => {
   const users = await User.find({});
   return users.map((user) => user.toJSON());
@@ -24,5 +34,6 @@ const usersInDb = async () => {
 
 module.exports = {
   initialUsers,
+  dummyUser,
   usersInDb,
 };

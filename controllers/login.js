@@ -8,7 +8,6 @@ const logger = require('../utils/logger');
 
 router.post('/', async (req, res, next) => {
   const { password, username } = req.body;
-
   try {
     const user = await User.findOne({ username });
     const passwordValid = user === null
