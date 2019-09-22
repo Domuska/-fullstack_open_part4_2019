@@ -97,6 +97,39 @@ describe('post blogs', () => {
   });
 });
 
+describe('delete blogs', () => {
+  test('deleting a blog and requesting all blogs, blog should have disappeared', async () => {
+    // will not actually work if there are two blogs with the same title
+    const blogsResponse = await api.get(blogsRoute);
+    const blogToBeDeleted = blogsResponse.body[0];
+
+    await api
+      .delete(`${blogsRoute}/${blogToBeDeleted.id}`)
+      .expect(204);
+    const blogsResponse2 = await api.get(blogsRoute);
+    const titles = blogsResponse2.body.map((blogObject) => blogObject.title);
+    expect(titles).not.toContain(blogToBeDeleted.title);
+    expect(blogsResponse2.body.length).toBe(initialBlogs.length - 1);
+  });
+});
+
+describe('update blogs', () => {
+  test('requesting to update a blog should return the updated object', async () => {
+    const blogsResponse = await api.get(blogsRoute);
+    const blogToUpdate = { ...blogsResponse.body[0] };
+    blogToUpdate.likes = 25;
+    blogToUpdate.title = 'shouldnotbeupdated';
+
+    const response = await api
+      .put(`${blogsRoute}/${blogToUpdate.id}`)
+      .send(blogToUpdate)
+      .expect(200);
+
+    expect(response.body.likes).toEqual(blogToUpdate.likes);
+    expect(response.body.title).not.toEqual(blogToUpdate.title);
+  });
+});
+
 afterAll(() => {
   mongoose.connection.close();
 });
