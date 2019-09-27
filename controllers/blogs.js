@@ -77,6 +77,8 @@ router.delete('/:blogId', async (request, response, next) => {
 });
 
 router.put('/:blogId', async (request, response, next) => {
+  // note, route only updates the blog's likes
+  // updating the whole blog seems unreasonable at this point
   try {
     const { likes } = request.body;
     // todo could check additional things like negative likes or non-number values if needed
